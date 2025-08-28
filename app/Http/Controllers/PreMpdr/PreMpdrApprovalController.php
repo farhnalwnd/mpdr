@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\PreMpdr;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\Mpdr\ProcessApproval as MpdrProcessApproval;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Str;

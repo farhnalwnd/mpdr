@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Models\Level;
-use App\Models\Department;
+use App\Models\Master\Department;
+use App\Models\Master\Level;
+use App\Models\Master\Position as MasterPosition;
 use App\Models\Position;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-class UserRolePermissionSeeder extends Seeder
+class UserRolePermissionSeeder extends DatabaseSeeder
 {
     /**
      * Run the database seeds.
@@ -21,94 +22,94 @@ class UserRolePermissionSeeder extends Seeder
     {
         // Create Permissions
          // Create Permissions
-         Permission::create(['name' => 'view role']);
-         Permission::create(['name' => 'create role']);
-         Permission::create(['name' => 'update role']);
-         Permission::create(['name' => 'delete role']);
+         Permission::firstOrCreate(['name' => 'view role']);
+         Permission::firstOrCreate(['name' => 'create role']);
+         Permission::firstOrCreate(['name' => 'update role']);
+         Permission::firstOrCreate(['name' => 'delete role']);
 
-         Permission::create(['name' => 'view permission']);
-         Permission::create(['name' => 'create permission']);
-         Permission::create(['name' => 'update permission']);
-         Permission::create(['name' => 'delete permission']);
+         Permission::firstOrCreate(['name' => 'view permission']);
+         Permission::firstOrCreate(['name' => 'create permission']);
+         Permission::firstOrCreate(['name' => 'update permission']);
+         Permission::firstOrCreate(['name' => 'delete permission']);
 
-         Permission::create(['name' => 'view user']);
-         Permission::create(['name' => 'create user']);
-         Permission::create(['name' => 'update user']);
-         Permission::create(['name' => 'delete user']);
+         Permission::firstOrCreate(['name' => 'view user']);
+         Permission::firstOrCreate(['name' => 'create user']);
+         Permission::firstOrCreate(['name' => 'update user']);
+         Permission::firstOrCreate(['name' => 'delete user']);
 
-         Permission::create(['name' => 'view product']);
-         Permission::create(['name' => 'create product']);
-         Permission::create(['name' => 'update product']);
-         Permission::create(['name' => 'delete product']);
+         Permission::firstOrCreate(['name' => 'view product']);
+         Permission::firstOrCreate(['name' => 'create product']);
+         Permission::firstOrCreate(['name' => 'update product']);
+         Permission::firstOrCreate(['name' => 'delete product']);
 
-         Permission::create(['name' => 'view finance']);
-         Permission::create(['name' => 'create finance']);
-         Permission::create(['name' => 'update finance']);
-         Permission::create(['name' => 'delete finance']);
+         Permission::firstOrCreate(['name' => 'view finance']);
+         Permission::firstOrCreate(['name' => 'create finance']);
+         Permission::firstOrCreate(['name' => 'update finance']);
+         Permission::firstOrCreate(['name' => 'delete finance']);
 
-         Permission::create(['name' => 'view department']);
-         Permission::create(['name' => 'create department']);
-         Permission::create(['name' => 'update department']);
-         Permission::create(['name' => 'delete department']);
+         Permission::firstOrCreate(['name' => 'view department']);
+         Permission::firstOrCreate(['name' => 'create department']);
+         Permission::firstOrCreate(['name' => 'update department']);
+         Permission::firstOrCreate(['name' => 'delete department']);
 
-         Permission::create(['name' => 'view position']);
-         Permission::create(['name' => 'create position']);
-         Permission::create(['name' => 'update position']);
-         Permission::create(['name' => 'delete position']);
+         Permission::firstOrCreate(['name' => 'view position']);
+         Permission::firstOrCreate(['name' => 'create position']);
+         Permission::firstOrCreate(['name' => 'update position']);
+         Permission::firstOrCreate(['name' => 'delete position']);
 
-         Permission::create(['name' => 'view level']);
-         Permission::create(['name' => 'create level']);
-         Permission::create(['name' => 'update level']);
-         Permission::create(['name' => 'delete level']);
+         Permission::firstOrCreate(['name' => 'view level']);
+         Permission::firstOrCreate(['name' => 'create level']);
+         Permission::firstOrCreate(['name' => 'update level']);
+         Permission::firstOrCreate(['name' => 'delete level']);
 
-         Permission::create(['name' => 'view dashboard Finance']);
-         Permission::create(['name' => 'view dashboard Sales & Marketing']);
-         Permission::create(['name' => 'view dashboard Supply Chain']);
-         Permission::create(['name' => 'view dashboard HCD']);
-         Permission::create(['name' => 'view dashboard Engineering & Maintainance']);
-         Permission::create(['name' => 'view dashboard Manufacturing']);
-         Permission::create(['name' => 'view dashboard QM & HSE']);
-         Permission::create(['name' => 'view dashboard R&D']);
+         Permission::firstOrCreate(['name' => 'view dashboard Finance']);
+         Permission::firstOrCreate(['name' => 'view dashboard Sales & Marketing']);
+         Permission::firstOrCreate(['name' => 'view dashboard Supply Chain']);
+         Permission::firstOrCreate(['name' => 'view dashboard HCD']);
+         Permission::firstOrCreate(['name' => 'view dashboard Engineering & Maintainance']);
+         Permission::firstOrCreate(['name' => 'view dashboard Manufacturing']);
+         Permission::firstOrCreate(['name' => 'view dashboard QM & HSE']);
+         Permission::firstOrCreate(['name' => 'view dashboard R&D']);
 
          //create departements
 
-        Department::create(['department_name' => 'Engineering & Maintainance']);
-        Department::create(['department_name' => 'Finance Admin']);
-        Department::create(['department_name' => 'HCD']);
-        Department::create(['department_name' => 'Manufacturing']);
-        Department::create(['department_name' => 'QM & HSE']);
-        Department::create(['department_name' => 'R&D']);
-        Department::create(['department_name' => 'Sales & Marketing']);
-        Department::create(['department_name' => 'Supply Chain']);
-        Department::create(['department_name' => 'Secret']);
+        Department::firstOrCreate(['department_name' => 'Engineering & Maintainance']);
+        Department::firstOrCreate(['department_name' => 'Finance Admin']);
+        Department::firstOrCreate(['department_name' => 'HCD']);
+        Department::firstOrCreate(['department_name' => 'Manufacturing']);
+        Department::firstOrCreate(['department_name' => 'QM & HSE']);
+        Department::firstOrCreate(['department_name' => 'R&D']);
+        Department::firstOrCreate(['department_name' => 'Sales & Marketing']);
+        Department::firstOrCreate(['department_name' => 'Supply Chain']);
+        Department::firstOrCreate(['department_name' => 'Secret']);
 
          //create Level
-         Level::create(['level_name' => 'I']);
-         Level::create(['level_name' => 'II']);
-         Level::create(['level_name' => 'III']);
-         Level::create(['level_name' => 'IV']);
-         Level::create(['level_name' => 'V']);
-         Level::create(['level_name' => 'VI']);
-         Level::create(['level_name' => 'VII']);
-         Level::create(['level_name' => 'Developer']);
+         Level::firstOrCreate(['level_name' => 'I']);
+         Level::firstOrCreate(['level_name' => 'II']);
+         Level::firstOrCreate(['level_name' => 'III']);
+         Level::firstOrCreate(['level_name' => 'IV']);
+         Level::firstOrCreate(['level_name' => 'V']);
+         Level::firstOrCreate(['level_name' => 'VI']);
+         Level::firstOrCreate(['level_name' => 'VII']);
+         Level::firstOrCreate(['level_name' => 'Developer']);
 
           // department finance and admin
-        Position::create(['position_name' => 'Developer','level_id' => 8,'department_id' => 9 ]);
-        Position::create(['position_name' => 'General Manager','level_id' => 7,'department_id' => 1 ]);
-        Position::create(['position_name' => 'Department Head Finance','level_id' => 6,'department_id' =>2 ]);
-        Position::create(['position_name' => 'Assistant Manager MIS','level_id' => 5,'department_id' =>2 ]);
-        Position::create(['position_name' => 'Manager Accounting & Tax','level_id' => 5,'department_id' =>2 ]);
-        Position::create(['position_name' => 'Manager Bussiness Opr. Control','level_id' => 5,'department_id' => 2]);
-        Position::create(['position_name' => 'IT Support','level_id' => 3,'department_id' =>2 ]);
-        Position::create(['position_name' => 'Web Developer','level_id' => 3,'department_id' =>2 ]);
-        Position::create(['position_name' => 'Supervisor - MIS ','level_id' => 4,'department_id' =>2 ]);
+        MasterPosition::firstOrCreate(['position_name' => 'Developer','level_id' => 8,'department_id' => 9 ]);
+        MasterPosition::firstOrCreate(['position_name' => 'General Manager','level_id' => 7,'department_id' => 1 ]);
+        MasterPosition::firstOrCreate(['position_name' => 'Department Head Finance','level_id' => 6,'department_id' =>2 ]);
+        MasterPosition::firstOrCreate(['position_name' => 'Assistant Manager MIS','level_id' => 5,'department_id' =>2 ]);
+        MasterPosition::firstOrCreate(['position_name' => 'Manager Accounting & Tax','level_id' => 5,'department_id' =>2 ]);
+        MasterPosition::firstOrCreate(['position_name' => 'Manager Bussiness Opr. Control','level_id' => 5,'department_id' => 2]);
+        MasterPosition::firstOrCreate(['position_name' => 'IT Support','level_id' => 3,'department_id' =>2 ]);
+        MasterPosition::firstOrCreate(['position_name' => 'Web Developer','level_id' => 3,'department_id' =>2 ]);
+        MasterPosition::firstOrCreate(['position_name' => 'Supervisor - MIS ','level_id' => 4,'department_id' =>2 ]);
 
         // department suppply chain
-        Position::create(['position_name' => 'Department Head Supply Chain','level_id' => 6,'department_id' =>8 ]);
-        Position::create(['position_name' => 'Manager - Logistic','level_id' => 6,'department_id' =>8]);
-        Position::create(['position_name' => 'Manager - PPIC','level_id' => 6,'department_id' =>8 ]);
-        Position::create(['position_name' => 'Manager - Purchasing','level_id' => 6,'department_id' =>8 ]);
-        Position::create(['position_name' => 'Supervisor - Export','level_id' => 5,'department_id' =>8 ]);
+        MasterPosition::firstOrCreate(['position_name' => 'Department Head Supply Chain','level_id' => 6,'department_id' =>8 ]);
+        MasterPosition::firstOrCreate(['position_name' => 'Manager - Logistic','level_id' => 6,'department_id' =>8]);
+        MasterPosition::firstOrCreate(['position_name' => 'Manager - PPIC','level_id' => 6,'department_id' =>8 ]);
+        MasterPosition::firstOrCreate(['position_name' => 'Manager - Purchasing','level_id' => 6,'department_id' =>8 ]);
+        MasterPosition::firstOrCreate(['position_name' => 'Supervisor - Export','level_id' => 5,'department_id' =>8 ]);
 
 
         // Create Roles

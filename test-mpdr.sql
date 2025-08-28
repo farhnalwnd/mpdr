@@ -1609,6 +1609,9 @@ INSERT INTO `users` (`id`, `nik`, `name`, `email`, `password`, `avatar`, `rememb
 --
 -- Indexes for dumped tables
 --
+ALTER TABLE `users`
+ADD COLUMN `direct_superior_id` INT(11) NULL DEFAULT NULL AFTER `status`;
+ADD CONSTRAINT `fk_direct_superior` FOREIGN KEY (`direct_superior_id`) REFERENCES `users` (`id`);
 
 --
 -- Indexes for table `activity_log`

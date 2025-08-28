@@ -79,11 +79,11 @@ class PreMpdrController extends Controller
                 'expectedMargin' => 'required',
                 'priceEstimate' => 'required',
                 'targetLaunchText' => 'required',
-                'initiator' => 'required|string'
             ]);
 
             $revision = PreMpdrRevision::latest()->first();
             $user = Auth::user();
+            $validator_nik = $user->atasan_nik;
             $form = PreMpdrForm::create([
                 'no' => $validated['no_reg'],
                 'user_id' => $user->id,
@@ -92,7 +92,7 @@ class PreMpdrController extends Controller
                 'brand_name' => $validated['brandName'],
                 'level_priority' => $validated['levelPriority'],
                 'status' => $validated['form_status'] == 'Submit' ? 'In Approval' : $validated['form_status'],
-                'route_to' => $validated['form_status'] == 'Submit' ? User::where('nik', $validated['initiator'])->first()->name : null
+                'route_to' => $validated['form_status'] == 'Submit' ? User::where('nik', $validator_nik)->first()->name : null
             ]);
             // Simpan FormDetail terkait dengan Form
             $form->detail()->create([
@@ -154,26 +154,24 @@ class PreMpdrController extends Controller
                 'price_estimate' => $validated['priceEstimate']
             ]);
 
-
-            $form->approvedDetail()->create([
-                'form_id' => $form->id,
-                'approver' => $validated['initiator'],
-                'name' => User::where('nik', $validated['initiator'])->first()->name,
-                'level' => 1,
-                'token' => Str::uuid()
-            ]);
-
             if($validated['form_status'] == 'Submit'){
-                $approvers = PreMpdrApprover::all();
-                foreach($approvers as $index => $approver){
-                    $form->approvedDetail()->create([
-                        'form_id' => $form->id,
-                        'approver' => $approver->approver_nik,
-                        'name' => $approver->name,
-                        'level' => $index+2,
-                        'token' => Str::uuid()
-                    ]);
-                }
+                $form->approvedDetail()->create([
+                    'form_id' => $form->id,
+                    'approver' => $validator_nik,
+                    'name' => User::where('nik', $validator_nik)->first()->name,
+                    'level' => 1,
+                    'token' => Str::uuid()
+                ]);
+                // $approvers = PreMpdrApprover::all();
+                // foreach($approvers as $index => $approver){
+                //     $form->approvedDetail()->create([
+                //         'form_id' => $form->id,
+                //         'approver' => $approver->approver_nik,
+                //         'name' => $approver->name,
+                //         'level' => $index+2,
+                //         'token' => Str::uuid()
+                //     ]);
+                // }
                 $this->sendMailToApprover($validated['no_reg']);
             }
 
@@ -261,20 +259,20 @@ class PreMpdrController extends Controller
                 'expectedMargin' => 'required',
                 'priceEstimate' => 'required',
                 'targetLaunchText' => 'required',
-                'initiator' => 'required|string',
             ]);
 
-                    dd($validated['form_status'] == 'Submit' ? User::where('nik', $validated['initiator'])->first()->name : null);
-
-
             $user = Auth::user();
+            $validator_nik = $user->atasan_nik;
+
+            dd($validated['form_status'] == 'Submit' ? User::where('nik', $validator_nik)->first()->name : null);
+
             $form = PreMpdrForm::where('no', $validated['no_reg'])
             ->where('user_id', $user->id)
             ->first();
 
             $form->update([
                 'status' => $validated['form_status'] == 'Submit' ? 'In Approval' : $validated['form_status'],
-                'route_to' => $validated['form_status'] == 'Submit' ? User::where('nik', $validated['initiator'])->first()->name : null
+                'route_to' => $validated['form_status'] == 'Submit' ? User::where('nik', $validator_nik)->first()->name : null
             ]);
 
             // Simpan FormDetail terkait dengan Form
@@ -339,8 +337,8 @@ class PreMpdrController extends Controller
 
 
             $form->approvedDetail()->where('level', 1)->update([
-                'approver' => $validated['initiator'],
-                'name' => User::where('nik', $validated['initiator'])->first()->name,
+                'approver' => $validator_nik,
+                'name' => User::where('nik', $validator_nik)->first()->name,
                 'token' => Str::uuid()
             ]);
 

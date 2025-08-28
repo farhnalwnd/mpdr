@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -33,7 +34,8 @@ class User extends Authenticatable
         'position_id',
         'manager_id',
         'section_id',
-        'status'
+        'status',
+        'atasan'
     ];
 
     /**
@@ -79,5 +81,10 @@ class User extends Authenticatable
     public function section()
     {
         return $this->belongsTo(Section::class);
+    }
+
+    public function atasan()
+    {
+        return $this->belongsTo(User::class, 'atasan_nik', 'nik');
     }
 }

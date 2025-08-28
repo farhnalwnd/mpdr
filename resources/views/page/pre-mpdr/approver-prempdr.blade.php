@@ -180,7 +180,7 @@
                 url: '{{ route('prempdr.selected.approver.list') }}',
                 method: 'GET',
                 success: function(response) {
-                    console.log(response);
+                    console.log('data load approver',response);
                     approvers = response; //menyimpan list approver
                 },
                 error: function() {

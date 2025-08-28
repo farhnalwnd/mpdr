@@ -88,4 +88,5 @@ class PreMpdrForm extends Model
     {
         return $this->hasMany(PreMpdrApprovedDetail::class, 'form_id');
     }
+    
 }

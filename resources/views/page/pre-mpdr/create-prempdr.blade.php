@@ -299,10 +299,9 @@
                     <tbody>
                         <tr>
                             <td>Initiator</td>
-                            <td>
-                                <select id="initiator" name="initiator" class="form-select form-select-sm" required>
-                                    <option selected disabled value="">Select</option>
-                                </select>
+                            <td class="text-center">
+                                <span style="font-weight: bold; font-size: 1rem; cursor: pointer;">{{ optional(Auth::user()->atasan)->name ?? 'atasan tidak ditemukan' }}</span>
+                                <!-- <input type="text" name="initiator" class="form-input form-input-sm" value="{{ Auth::user()->atasan_nik }}" hidden> -->
                             </td>
                         </tr>
                     </tbody>

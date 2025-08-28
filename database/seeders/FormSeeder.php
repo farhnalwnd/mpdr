@@ -10,7 +10,7 @@ use Faker\Factory as Faker;
 use App\Models\User;
 use App\Models\HSE\hseLocation;
 
-class FormSeeder extends Seeder
+class FormSeeder extends DatabaseSeeder
 {
     public function run(): void
     {
