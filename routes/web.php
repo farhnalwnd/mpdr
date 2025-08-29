@@ -131,6 +131,8 @@ Route::middleware('auth')->group(function () {
         Route::POST('/approve-form-{no_reg}', [PreMpdrApprovalController::class, 'approveForm'])->name('prempdr.form.approve');
         Route::get('/getApprovalListData', [PreMpdrApprovalController::class, 'getApprovalListData'])->name('prempdr.approval.list.data');
         Route::get('/getApprovalFormData', [PreMpdrApprovalController::class, 'getApprovalFormData'])->name('prempdr.approval.form.data');
+        Route::get('/getApproverAvailableLevels', [PreMpdrApprovalController::class, 'getApproverAvailableLevels'])->name('prempdr.approver.available.levels');
+        Route::delete('/approver/destroy/{nik}', [PreMpdrApprovalController::class, 'destroy'])->name('prempdr.approver.destroy');
 
 
         Route::get('/approver', [PreMpdrApprovalController::class, 'approver'])->name('prempdr.approver');

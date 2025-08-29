@@ -14,7 +14,8 @@ class PreMpdrApprover extends Model
         'user_nik',
         'approver_nik',
         'approver_name',
-        'approver_status'
+        'approver_status',
+        'level'
     ];
 
     public function user()

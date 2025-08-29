@@ -16,6 +16,7 @@ use App\Jobs\PreMpdr\ProcessApproval;
 use App\Jobs\PreMpdr\sendResultToUser;
 use App\Models\PREMPDR\PreMpdrApprover;
 use App\Notifications\MpdrNotification;
+use Illuminate\Support\Facades\Validator;
 
 class PreMpdrApprovalController extends Controller
 {
@@ -27,6 +28,16 @@ class PreMpdrApprovalController extends Controller
         return view('page.pre-mpdr.form-approval-prempdr')->with('no_reg', $no_reg);
     }
 
+    public function getApproverAvailableLevels(){
+        $all_levels = range(2, 10);
+
+        $used_levels = PreMpdrApprover::pluck('level')->toArray();
+
+        $available_levels = array_diff($all_levels, $used_levels);
+
+        return response()->json(array_values($available_levels));
+    }
+    
     public function approveForm(Request $request, $no_reg)
     {
         $validated = $request->validate([
@@ -122,6 +133,23 @@ class PreMpdrApprovalController extends Controller
         return view('page.pre-mpdr.form-approval-prempdr')->with('no_reg', $no_reg);
     }
 
+    // app/Http/Controllers/PreMpdrController.php
+
+    public function destroy($nik)
+    {
+        try {
+            // Cari dan hapus approver berdasarkan NIK approver DAN NIK user yang login
+            $deleted = PreMpdrApprover::where('approver_nik', $nik)->delete();
+
+            if ($deleted) {
+                return response()->json(['status' => 'success', 'message' => 'Approver has been deleted successfully.']);
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'Approver not found or you do not have permission to delete it.'], 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'A server error occurred.'], 500);
+        }
+    }
 
     private function sendMailToApprover($no_reg)
     {
@@ -403,7 +431,7 @@ class PreMpdrApprovalController extends Controller
     public function getSelectedApproverList()
     {
         $user_nik = Auth::user()->nik;
-        $approverList = PreMpdrApprover::select('approver_nik', 'approver_name', 'approver_status')->where('user_nik', $user_nik)->get()->toArray();
+        $approverList = PreMpdrApprover::select('approver_nik', 'approver_name', 'approver_status', 'level')->where('user_nik', $user_nik)->get()->toArray();
         if($approverList){
             return response()->json($approverList);
         }
@@ -412,38 +440,74 @@ class PreMpdrApprovalController extends Controller
 
     public function updateApproverOrder(Request $request)
     {
-        $user_nik = Auth::user()->nik;
+        // Langkah 1: Validasi semua input yang masuk
+        $validator = Validator::make($request->all(), [
+            'nik'     => 'present|array', // 'present' berarti field harus ada, tapi boleh array kosong
+            'nik.*'   => 'required|string', // Setiap item di dalam array nik harus ada dan berupa string
+            'name'    => 'present|array',
+            'name.*'  => 'required|string',
+            'status'  => 'present|array',
+            'status.*' => 'required|string',
+            'level'   => 'present|array', // <-- Perbaiki typo dari 'levels' ke 'level'
+            'level.*' => 'required|integer',
+        ]);
 
-        // Mulai transaction untuk memastikan integritas data
-        DB::beginTransaction();
-        try {
-
-            PreMpdrApprover::where('user_nik', $user_nik)->delete();
-
-            $approver_niks = $request->input('nik');
-            $approver_names = $request->input('name');
-            $approver_statuses = $request->input('status');
-            foreach($approver_niks as $index => $approver_nik){
-                PreMpdrApprover::create([
-                    'user_nik' => $user_nik,
-                    'approver_nik' => $approver_niks[$index],
-                    'approver_name' => $approver_names[$index],
-                    'approver_status' => $approver_statuses[$index]
-                ]);
-            }
-            DB::commit();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Approver saved successfully!'
-            ]);
-        } catch (\Exception $e) {
-            // Rollback transaksi jika terjadi kesalahan
-            DB::rollback();
-
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'There was an error saving approver.'.$e->getMessage()
+                'message' => 'Invalid data provided.',
+                'errors' => $validator->errors()
+            ], 422); // 422 Unprocessable Entity
+        }
+
+        // Langkah 2: Ambil semua data sekali saja sebelum loop
+        $user_nik          = Auth::user()->nik;
+        $approver_niks     = $request->input('nik');
+        $approver_names    = $request->input('name');
+        $approver_statuses = $request->input('status');
+        $approver_levels   = $request->input('level'); // <-- Perbaiki typo & simpan di variabel
+
+        // Pastikan semua array punya jumlah elemen yang sama (kecuali jika kosong)
+        if (!empty($approver_niks) && (count($approver_niks) !== count($approver_names) || count($approver_niks) !== count($approver_statuses) || count($approver_niks) !== count($approver_levels))) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Input arrays have mismatched counts.'
+            ], 400); // 400 Bad Request
+        }
+
+
+        // Langkah 3: Jalankan operasi database dalam transaksi
+        DB::beginTransaction();
+        try {
+            // Hapus semua approver lama untuk user ini
+            PreMpdrApprover::where('user_nik', $user_nik)->delete();
+
+            // Jika ada data approver baru, buat ulang
+            if (!empty($approver_niks)) {
+                foreach ($approver_niks as $index => $nik) { // <-- Gunakan variabel $nik
+                    PreMpdrApprover::create([
+                        'user_nik'        => $user_nik,
+                        'approver_nik'    => $nik, // <-- Lebih bersih
+                        'approver_name'   => $approver_names[$index],
+                        'approver_status' => $approver_statuses[$index],
+                        'level'           => $approver_levels[$index],
+                        'order'           => $index + 1 // <-- Anda mungkin ingin menyimpan urutannya juga
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Approver list has been saved successfully!'
             ]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            // Untuk debugging, kirim pesan error asli. Di production, bisa diganti pesan umum.
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'An error occurred while saving the approver list: ' . $e->getMessage()
+            ], 500); // 500 Internal Server Error
         }
     }
 }

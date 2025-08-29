@@ -86,12 +86,7 @@
                                     @endphp
                                     <button type="button"
                                         class="p-3 d-flex align-items-center dropdown-item gap-3 border-bottom mark-as-read"
-                                        data-id="{{ $notification->id }}"
-                                        @if (!is_null($urlType) || !is_null($urlContent))
-                                            data-url="{{ route($url) }}"
-                                        @else
-                                            data-url="{{ route('dashboard') }}"
-                                        @endif>
+                                        data-id="{{ $notification->id }}">
                                         <span
                                             class="flex-shrink-0 bg-primary-subtle rounded-circle round-40 d-flex align-items-center justify-content-center fs-6 text-primary">
                                             {{ substr(auth()->user()->where('id', $notification->data['user_id'])->first()->name,0,1) }}
