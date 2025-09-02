@@ -67,6 +67,8 @@ Route::prefix('mpdr')->group(function () {
     Route::POST('/mail-comment', [MpdrApprovalController::class, 'mailComment'])->name('mpdr.comment');
     Route::get('/print-{no_reg}', [MpdrController::class, 'print'])->name('mpdr.print');
     Route::get('/printdata', [MpdrController::class, 'getPrintData'])->name('mpdr.print.data');
+    Route::get('/prempdr-list', [MpdrController::class, 'getPrempdrList'])->name('mpdr.prempdr.list');
+    Route::get('/getpremprdtompdr', [MpdrController::class, 'getpremprdtompdr'])->name('get.premprd.to.mpdr');
 });
 
 

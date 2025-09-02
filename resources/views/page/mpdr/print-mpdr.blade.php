@@ -406,7 +406,6 @@
                     $('#potentialVolume').val(response.market.potential_volume);
                     $('#expectedMargin').val(response.market.expected_margin);
                     $('#priceEstimate').val(response.market.price_estimate);
-                               
                     
                     response.approved_detail.forEach(function(detail, index) {
                         // Memasukan data ke table approver

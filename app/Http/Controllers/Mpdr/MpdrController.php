@@ -14,6 +14,8 @@ use App\Models\User;
 use App\Models\MPDR\MpdrForm;
 use App\Models\MPDR\MpdrApprover;
 use App\Models\MPDR\MpdrRevision;
+use App\Models\PREMPDR\PreMpdrForm;
+use App\Models\PREMPDR\PreMpdrFrom;
 use App\Notifications\MpdrNotification;
 
 class MpdrController extends Controller
@@ -43,9 +45,11 @@ class MpdrController extends Controller
         $validated = $request->validate([
             'form_status' => 'required|string|in:Draft,Submit',
             'no_reg' => 'required|string',
+            'no_pre' => 'required|string',
             'productName' => 'required|string|max:255',
             'levelPriority' => 'required',
-            'initiator' => 'required',
+            'initiator_name_display' => '',
+            'initiator' => 'required|exists:users,nik',
             'rationalForDevelopment' => 'required',
             'productCategory' => 'required',
             'productCategoryText' => '',
@@ -82,6 +86,7 @@ class MpdrController extends Controller
         try {
             $user = Auth::user();
             $revision = MpdrRevision::latest()->first();
+            // dd($validated['no_pre']);
 
             $form = MpdrForm::create([
                 'no' => $validated['no_reg'],
@@ -91,6 +96,7 @@ class MpdrController extends Controller
                 'initiator' => User::where('nik', $validated['initiator'])->first()->name,
                 'level_priority' => $validated['levelPriority'],
                 'status' => $validated['form_status'] == 'Submit' ? 'In Approval' : $validated['form_status'],
+                'prempdr_no' => $validated['no_pre'],
             ]);
 
             // Simpan FormDetail terkait dengan Form
@@ -203,7 +209,7 @@ class MpdrController extends Controller
             return redirect()->route('mpdr.index');
 
         } catch (\Exception $e) {
-            // dd($e);
+            dd($e);
             // Rollback transaksi jika terjadi kesalahan
             DB::rollback();
             Alert::toast('There was an error saving the form.'.$e->getMessage(), 'error');
@@ -522,4 +528,25 @@ class MpdrController extends Controller
 
         return response()->json("Tidak ada Form");
     }
+
+    public function getPrempdrList()
+    {
+        $forms = PreMpdrForm::whereDoesntHave('Mpdr')->pluck('no');
+        if($forms){
+            return response()->json($forms);
+        }
+
+        return response()->json("Tidak ada Form");
+    }
+
+    public function getpremprdtompdr(Request $request)
+    {
+        $form = PreMpdrForm::with('user','detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market')->where('no', $request->input('no_reg'))->first();
+        if($form){
+            return response()->json($form);
+        }
+
+        return response()->json("Tidak ada Form");
+    }
+
 }
