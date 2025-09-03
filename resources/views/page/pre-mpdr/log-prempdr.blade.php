@@ -69,6 +69,7 @@
                         form: 'prempdr'
                     },
                     dataSrc: function(response) {
+                        console.log('Data diterima dari server:', response);
                         return response;
                     }
                 },
@@ -86,7 +87,7 @@
                     },
                     { data: 'event', name: 'action'},
                     { data: 'description', name: 'description'}
-                ]
+                ],
             });
         </script>
     @endpush

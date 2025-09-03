@@ -2,6 +2,7 @@
 
 namespace App\Models\PREMPDR;
 
+use App\Models\MPDR\MpdrForm;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\PREMPDR\PreMpdrFormDetail;
@@ -87,6 +88,11 @@ class PreMpdrForm extends Model
     public function approvedDetail()
     {
         return $this->hasMany(PreMpdrApprovedDetail::class, 'form_id');
+    }
+
+    public function Mpdr()
+    {
+        return $this->hasOne(MpdrForm::class, 'prempdr_no', 'no');
     }
     
 }

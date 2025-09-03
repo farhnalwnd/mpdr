@@ -154,24 +154,26 @@ class PreMpdrController extends Controller
                 'price_estimate' => $validated['priceEstimate']
             ]);
 
-            if($validated['form_status'] == 'Submit'){
-                $form->approvedDetail()->create([
-                    'form_id' => $form->id,
-                    'approver' => $validator_nik,
-                    'name' => User::where('nik', $validator_nik)->first()->name,
-                    'level' => 1,
-                    'token' => Str::uuid()
-                ]);
-                // $approvers = PreMpdrApprover::all();
-                // foreach($approvers as $index => $approver){
-                //     $form->approvedDetail()->create([
-                //         'form_id' => $form->id,
-                //         'approver' => $approver->approver_nik,
-                //         'name' => $approver->name,
-                //         'level' => $index+2,
-                //         'token' => Str::uuid()
-                //     ]);
-                // }
+
+            $form->approvedDetail()->create([
+                'form_id' => $form->id,
+                'approver' => $validator_nik,
+                'name' => User::where('nik', $validator_nik)->first()->name,
+                'level' => 1,
+                'token' => Str::uuid()
+            ]);
+
+            if ($validated['form_status'] == 'Submit') {
+                $approvers = PreMpdrApprover::orderBy('level', 'asc')->get();
+                foreach ($approvers as $approver) {
+                    $form->approvedDetail()->create([
+                        'form_id' => $form->id,
+                        'approver' => $approver->approver_nik,
+                        'name' => $approver->approver_name,
+                        'level' => $approver->level,
+                        'token' => Str::uuid()
+                    ]);
+                }
                 $this->sendMailToApprover($validated['no_reg']);
             }
 

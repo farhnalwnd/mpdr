@@ -320,35 +320,7 @@
                         <th class="text-center">Notes/Comments</th>
                     </tr>
                 </thead>
-                <tbody class="">
-                    <tr id="initiator">
-                        <td>Initiator</td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                    </tr>
-                    <tr id="salesManager">
-                        <td>Dept. Head</td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                    </tr>
-                    <tr id="marketingManager">
-                        <td>Ass. Product Manager / Marketing Manager</td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                    </tr>
-                    <tr id="deptHead">
-                        <td>Dept. Head</td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                        <td class="text-center"></td>
-                    </tr>
+                <tbody class="" id="approver-body">
                 </tbody>
             </table>
         </footer>
@@ -436,34 +408,60 @@
                     $('#potentialVolume').val(response.market.potential_volume);
                     $('#expectedMargin').val(response.market.expected_margin);
                     $('#priceEstimate').val(response.market.price_estimate);
-                    
-                
-                    var approvers = ["#initiator", "#salesManager", "#marketingManager", "#deptHead"];
-                    var divId;
-                    response.approved_detail.forEach(function(detail, index) {
-                        divId = approvers[index];
-                        
-                        newDiv = '';
-                        if (detail.status){
-                            newDiv = document.createElement('div');
-                            newDiv.classList.add('d-flex', 'flex-column');
-                            newDiv.innerHTML = `
-                                <div>${detail.status}</div>
-                                <div>${detail.approved_date}</div>
+
+                    const approverTableBody = $('#approver-body');
+                    // Kosongkan isinya terlebih dahulu untuk memastikan tidak ada duplikasi
+                    approverTableBody.empty();
+                    // Looping untuk setiap data approver dari response
+                    response.approved_detail.forEach(function (detail) {
+                        // Siapkan variabel untuk setiap kolom status
+                        let approvedCol = '';
+                        let reviewCol = '';
+                        let notApprovedCol = '';
+                        let commentCol = '';
+
+                        // Logika untuk mengisi kolom yang sesuai berdasarkan status
+                        if (detail.status === 'approve') {
+                            approvedCol = `
+                                <div class="d-flex flex-column">
+                                    <span>✔️ Approved</span>
+                                    <small>${detail.approved_date || ''}</small>
+                                </div>
                             `;
+                        } else if (detail.status === 'approve with review') {
+                            reviewCol = `
+                                <div class="d-flex flex-column">
+                                    <span>📝 Approved with Review</span>
+                                    <small>${detail.approved_date || ''}</small>
+                                </div>
+                            `;
+                            commentCol = detail.comment;
+                        } else if (detail.status === 'not approved' || detail.status === 'reject') {
+                            notApprovedCol = `
+                                <div class="d-flex flex-column">
+                                    <span>❌ Not Approved</span>
+                                    <small>${detail.approved_date || ''}</small>
+                                </div>
+                            `;
+                            commentCol = detail.comment;
+                        } else if (detail.status) {
+                            // Untuk status lain seperti 'pending' atau null
+                            commentCol = detail.status;
                         }
-                        $(divId).find('td').eq(0).text(detail.name);
-                        if(detail.status === 'approve'){
-                            $(divId).find('td').eq(1).text(detail.status);  // Kolom kedua
-                        }else if(detail.status === 'approve with review'){
-                            $(divId).find('td').eq(2).text(detail.status); // Kolom ketiga
-                            $(divId).find('td').eq(4).text(detail.comment); // Kolom kelima
-                        }else{
-                            $(divId).find('td').eq(3).text(detail.status); // Kolom keempat
-                            $(divId).find('td').eq(4).text(detail.comment); // Kolom kelima
-                        }
+
+                        // Buat HTML untuk satu baris (tr) baru
+                        const newRow = `
+                            <tr>
+                                <td>${detail.name}</td>
+                                <td class="text-center">${approvedCol}</td>
+                                <td class="text-center">${reviewCol}</td>
+                                <td class="text-center">${notApprovedCol}</td>
+                                <td class="text-center">${commentCol}</td>
+                            </tr>
+                        `;
+                        // Tambahkan baris baru tersebut ke dalam tbody
+                        approverTableBody.append(newRow);
                     });
-                    
                 },
                 error: function() {
                     // Jika gagal, tampilkan pesan error
