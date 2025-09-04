@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Mpdr;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\MPDR\MpdrInitiatorController;
+use App\Models\MPDR\MpdrApprovedDetail;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -243,7 +244,8 @@ class MpdrController extends Controller
             'no_reg' => 'required|string',
             'productName' => 'required|string|max:255',
             'levelPriority' => 'required',
-            'initiator' => 'required',
+            'initiator_name_display' => '',
+            'initiator' => 'required|exists:users,nik',
             'rationalForDevelopment' => 'required',
             'productCategory' => 'required',
             'productCategoryText' => '',
@@ -531,7 +533,7 @@ class MpdrController extends Controller
 
     public function getPrempdrList()
     {
-        $forms = PreMpdrForm::whereDoesntHave('Mpdr')->pluck('no');
+        $forms = PreMpdrForm::whereDoesntHave('Mpdr')->where('status', 'Approved')->pluck('no');
         if($forms){
             return response()->json($forms);
         }
@@ -549,4 +551,11 @@ class MpdrController extends Controller
         return response()->json("Tidak ada Form");
     }
 
+    public function showDetail($formNo)
+    {
+        $formData = MpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail')->where('no', $formNo)->firstOrFail();
+        $approver = MpdrApprovedDetail::with('form', 'user')->where('form_id', $formData->id)->get();
+
+        return view('page.mpdr.view-form-mpdr', compact('formData', 'approver'));
+    }
 }

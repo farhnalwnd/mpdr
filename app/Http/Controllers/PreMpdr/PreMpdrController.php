@@ -4,6 +4,7 @@ namespace App\Http\Controllers\PreMpdr;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\PreMpdr\ProcessApproval;
+use App\Models\PREMPDR\PreMpdrApprovedDetail;
 use App\Models\PREMPDR\PreMpdrApprover;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -266,7 +267,7 @@ class PreMpdrController extends Controller
             $user = Auth::user();
             $validator_nik = $user->atasan_nik;
 
-            dd($validated['form_status'] == 'Submit' ? User::where('nik', $validator_nik)->first()->name : null);
+            // dd($validated['form_status'] == 'Submit' ? User::where('nik', $validator_nik)->first()->name : null);
 
             $form = PreMpdrForm::where('no', $validated['no_reg'])
             ->where('user_id', $user->id)
@@ -350,7 +351,7 @@ class PreMpdrController extends Controller
                     $form->approvedDetail()->create([
                         'form_id' => $form->id,
                         'approver' => $approver->approver_nik,
-                        'name' => $approver->name,
+                        'name' => $approver->approver_name,
                         'level' => $index+2,
                         'token' => Str::uuid()
                     ]);
@@ -372,7 +373,7 @@ class PreMpdrController extends Controller
             return redirect()->route('prempdr.index');
 
         } catch (\Exception $e) {
-            // dd($e);
+            dd($e);
             // Rollback transaksi jika terjadi kesalahan
             DB::rollback();
             Alert::toast('There was an error updating the form.'.$e->getMessage(), 'error');
@@ -534,5 +535,12 @@ class PreMpdrController extends Controller
             $notificationType = 'approval_request'; // Tipe notifikasi yang sesuai
             $approver->notify(new MpdrNotification($data, $notificationType));
         }
+    }
+    public function showDetail($formNo)
+    {
+        $formData = PreMpdrForm::with('revision', 'detail', 'category', 'channel', 'description', 'certification', 'competitor', 'packaging', 'market', 'approvedDetail')->where('no', $formNo)->firstOrFail();
+        $approver = PreMpdrApprovedDetail::with('form', 'user')->where('form_id', $formData->id)->get();
+
+        return view('page.pre-mpdr.view-form-prempdr', compact('formData', 'approver'));
     }
 }

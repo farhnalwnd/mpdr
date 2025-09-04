@@ -533,6 +533,7 @@ class MpdrApprovalController extends Controller
                     $form->initiatorDetail->save();
                     if($status !== 'approve' && $status !== 'approve with review'){
                         $form->status = 'Rejected';
+                        $form->prempdr_no = null;
                         $form->save();
 
                         // Jika form di reject maka kirim email ke admin saja

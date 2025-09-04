@@ -142,6 +142,8 @@ Route::middleware('auth')->group(function () {
         Route::POST('/updateApproverOrder', [PreMpdrApprovalController::class, 'updateApproverOrder'])->name('prempdr.approver.update.order');
         Route::get('/getApproverListData', [PreMpdrApprovalController::class, 'getApproverListData'])->name('prempdr.approver.list.data');
 
+        Route::get('/form/detail/{formId}', [PrempdrController::class, 'showDetail'])->name('prempdr.form.detail');
+
 
         // Route::get('/mail-approve', [PreMpdrApprovalController::class, 'approveNotReview'])->name('prempdr.approveNotReview');
         // Route::get('/mail-approve-with-review', [PreMpdrApprovalController::class, 'approveWithReview'])->name('prempdr.approveWithReview');
@@ -183,6 +185,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/approval-form-{no_reg}', [MpdrApprovalController::class, 'viewApprovalForm'])->name('mpdr.approval.form.view');
         Route::get('/approval', [MpdrApprovalController::class, 'approval'])->name('mpdr.approval');
         Route::get('/approver', [MpdrApprovalController::class, 'approver'])->name('mpdr.approver');
+
+        Route::get('/form/detail/{formId}', [MpdrController::class, 'showDetail'])->name('mpdr.form.detail');
+
 
         // Route::get('/mail-approve', [MpdrApprovalController::class, 'approveNotReview'])->name('mpdr.approveNotReview');
         // Route::get('/mail-approve-with-review', [MpdrApprovalController::class, 'approveWithReview'])->name('mpdr.approveWithReview');

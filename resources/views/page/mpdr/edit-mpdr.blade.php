@@ -74,9 +74,8 @@
                     </div>
                     <div class="col-12 col-md-5">
                         <label for="initiator" class="form-label">Initiator:</label>
-                        <select id="initiator" name="initiator" class="form-select" required>
-                            <option value="">Select</option>
-                        </select>
+                        <input type="text" id="initiator_name_display" class="form-control" value="Initiator name will appear here" readonly>
+                        <input type="hidden" name="initiator" id="initiator_nik_value">
                     </div>
                 </div>
                 <div id="rational">
@@ -411,23 +410,23 @@
         document.addEventListener('DOMContentLoaded', function() {
             const no_reg = @json($no_reg);
             // mengambil list approver
-            $.ajax({
-                url: '{{ route('mpdr.initiator.list.data') }}',
-                method: 'GET',
-                success: function(response) {
-                    response.forEach(item => {
-                        $('#initiator').append($('<option>', {
-                            value: item.nik, 
-                            text: item.name  
-                        }));
-                    });
-                },
-                error: function() {
-                    // Jika gagal, tampilkan pesan error
-                    console.log('Error ketika mengambil approver list');
-                    // $('#formData').html('<p>There was an error fetching the data.</p>');
-                }
-            });
+            //$.ajax({
+            //    url: '{{ route('mpdr.initiator.list.data') }}',
+            //    method: 'GET',
+            //    success: function(response) {
+            //        response.forEach(item => {
+            //            $('#initiator').append($('<option>', {
+            //                value: item.nik, 
+            //                text: item.name  
+            //            }));
+            //        });
+            //    },
+            //    error: function() {
+            //        // Jika gagal, tampilkan pesan error
+            //        console.log('Error ketika mengambil approver list');
+            //        // $('#formData').html('<p>There was an error fetching the data.</p>');
+            //    }
+            //});
             
             // fetch data form
             $.ajax({
@@ -449,8 +448,11 @@
                     
                     $('#productName').val(response.product_name);
                     $('#levelPriority').val(response.level_priority);
-                    $('#initiator').val(response.initiator_detail.initiator_nik);
-                    
+                    if (response.initiator_detail && response.initiator_detail.initiator_name && response.initiator_detail.initiator_nik) {
+                        $('#initiator_name_display').val(response.initiator_detail.initiator_name);
+                        $('#initiator_nik_value').val(response.initiator_detail.initiator_nik);
+                    }
+
                     $('#rationalForDevelopment').text(response.detail.rational_for_development);
                     $('#targetLaunch').val(response.detail.target_launch);
 

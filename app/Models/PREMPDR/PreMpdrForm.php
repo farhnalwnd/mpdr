@@ -35,6 +35,7 @@ class PreMpdrForm extends Model
         'route_to'
     ];
 
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -72,7 +73,7 @@ class PreMpdrForm extends Model
 
     public function competitor()
     {
-        return $this->hasMany(PreMpdrCompetitorProduct::class, 'form_id');
+        return $this->hasMany(PreMpdrCompetitorProduct::class, 'form_id', 'id');
     }
 
     public function packaging()
