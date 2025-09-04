@@ -58,69 +58,115 @@
         </div>
     </div>
 
+    <div class="modal fade" id="viewFormModal" tabindex="-1" aria-labelledby="viewFormModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewFormModalLabel">Detail Form</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{-- Konten dari AJAX akan dimuat di dalam div di bawah ini --}}
+                    <div id="modalContent">
+                        <p class="text-center">Loading...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/2.2.1/js/dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/3.0.0/js/dataTables.responsive.js"></script>
     <script>
+    $(function () {
+        // 1. Inisialisasi DataTable (Kode Anda yang sudah dimodifikasi)
         $('#prempdrTable').DataTable({
             processing: true,
             serverSide: false,
             ajax: {
                 url: '{{ route('prempdr.form.list') }}',
                 type: 'GET',
-                dataSrc: function(response) {
+                dataSrc: function (response) {
                     return response;
                 }
             },
             columns: [
                 { data: 'no', name: 'no_reg' },
                 { data: 'project_name', name: 'name' },
-                { data: 'status', name: 'status',
-                    render: function(data, type, row) {
+                {
+                    data: 'status', name: 'status',
+                    render: function (data, type, row) {
                         if (data === 'Rejected') {
                             return '<span class="text-danger">' + data + '</span>';
                         } else if (data === 'Approved') {
                             return '<span class="text-success">' + data + '</span>';
-                        } else if (data === 'In Approval'){
-                            return `<span class="text-primary"> ${data}  (${row.approved_detail[0].approved_count}/${row.approved_detail[0].total}) </span>`;
-                        }else if (data === 'Draft'){
+                        } else if (data === 'In Approval') {
+                            return `<span class="text-primary"> ${data}  (${row.approved_detail[0].approved_count}/${row.approved_detail[0].total}) </span>`;
+                        } else if (data === 'Draft') {
                             return '<span class="text-body-secondary">' + data + '</span>';
                         }
-                        // return data;
+                        return data; // Fallback
                     }
                 },
                 { data: 'route_to', name: 'route_to' },
-                { data: null, name: 'action', orderable: false, searchable: false, 
-                    render: function(data, type, row) {
+                {
+                    data: null, name: 'action', orderable: false, searchable: false,
+                    render: function (data, type, row) {
+                        // --- Bagian untuk status 'Draft' tetap sama ---
                         if (data.status === 'Draft') {
                             const editRoute = "{{ route('prempdr.edit', ':formId') }}".replace(':formId', row.no);
                             const deleteRoute = "{{ route('prempdr.destroy', ':formId') }}".replace(':formId', row.no);
-
                             return `
-                            <div class="d-flex gap-6">
-                                <a href="${editRoute}" class="btn btn-outline-primary" >Edit Form</a>
-                                <form id="delete-form-${row.no}" action="${deleteRoute}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <a href="javascript:void(0)" class="btn btn-outline-danger" data-form-no="${row.no}" onClick="confirmDelete(this)">
-                                        <i class="ti ti-trash"></i>
-                                    </a>
-                                </form>
-                            </div>
-                            `;
-                        } else {
-                            const route = "{{ route('prempdr.form', ':formId') }}";
-                            const url = route.replace(':formId', row.no);
-                            return `<a href="${url}" class="btn btn-outline-primary" >View Form</a>`;
-                        }
+                                    <div class="d-flex gap-2">
+                                        <a href="${editRoute}" class="btn btn-sm btn-outline-primary">Edit Form</a>
+                                        <form id="delete-form-${row.no}" action="${deleteRoute}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <a href="javascript:void(0)" class="btn btn-sm btn-outline-danger" data-form-no="${row.no}" onClick="confirmDelete(this)">
+                                                <i class="ti ti-trash"></i>
+                                            </a>
+                                        </form>
+                                    </div>
+                                    `;
+                            } else {
+                                return `
+                            <button type="button" 
+                                    class="btn btn-outline-primary view-form-btn" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#viewFormModal" 
+                                    data-form-id="${row.no}">
+                                View Form
+                            </button>`;
+                            }
                     }
                 }
             ]
         });
 
+        // 2. Tambahan Script jQuery untuk mengambil data saat modal dibuka
+        $('#prempdrTable tbody').on('click', '.view-form-btn', function () {
+            var formId = $(this).data('form-id');
+            var url = "{{ route('prempdr.form.detail', ':formId') }}".replace(':formId', formId);
+            console.log("Fetching data from URL:", url); // Debugging line
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function (response) {
+                    $('#modalContent').html(response);
+                },
+                error: function (xhr) {
+                    $('#modalContent').html('<p class="text-center text-danger">Gagal memuat data. Silakan coba lagi.</p>');
+                    console.error('AJAX Error:', xhr);
+                }
+            });
+        });
+    });
         // Function untuk konfirmasi delete user
         function confirmDelete(button){
             var formNo = button.getAttribute('data-form-no');

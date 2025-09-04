@@ -5,6 +5,7 @@ namespace App\Models\MPDR;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\MPDR\MpdrForm;
+use App\Models\User;
 
 class MpdrApprovedDetail extends Model
 {
@@ -24,5 +25,10 @@ class MpdrApprovedDetail extends Model
     public function form()
     {
         return $this->belongsTo(MpdrForm::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'approver_nik', 'nik');
     }
 }

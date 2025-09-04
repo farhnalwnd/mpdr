@@ -57,6 +57,26 @@
         </div>
     </div>
 
+        <div class="modal fade" id="viewFormModal" tabindex="-1" aria-labelledby="viewFormModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="viewFormModalLabel">Detail Form</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{-- Konten dari AJAX akan dimuat di dalam div di bawah ini --}}
+                        <div id="modalContent">
+                            <p class="text-center">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     @push('scripts')
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/2.2.1/js/dataTables.min.js"></script>
@@ -97,7 +117,7 @@
 
                             return `
                             <div class="d-flex gap-6">
-                                <a href="${editRoute}" class="btn btn-outline-primary" >Edit Form</a>
+                                <a href="${editRoute}" class="btn btn-outline-primary " >Edit Form</a>
                                 <form id="delete-form-${row.no}" action="${deleteRoute}" method="POST">
                                     @csrf
                                     @method('DELETE')
@@ -118,7 +138,9 @@
                             {
                                 const sendEmailUrl = "{{ route('mpdr.send.mail.gm', ':formId') }}".replace(':formId', row.no);
                                 return `<div class="d-flex gap-6">
-                                            <a href="${url}" class="btn btn-outline-primary me-2">View Form</a>
+                                            <button type="button" class="btn btn-outline-primary view-form-btn" data-bs-toggle="modal" data-bs-target="#viewFormModal" data-form-id="${row.no}">
+                                                View Form
+                                            </button>
                                             <form id="send-form-${row.no}" action="${sendEmailUrl}" method="POST">
                                                 @csrf
                                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -133,12 +155,33 @@
 
                             @endif
                             
-                            return `<a href="${url}" class="btn btn-outline-primary">View Form</a>`;
+                            return `<button type="button" class="btn btn-outline-primary view-form-btn" data-bs-toggle="modal" data-bs-target="#viewFormModal" data-form-id="${row.no}">
+                                        View Form
+                                    </button>`;
                         }
                     }
                 }
             ]
         });
+
+                $('#mpdrTable tbody').on('click', '.view-form-btn', function () {
+                        var formId = $(this).data('form-id');
+                        var url = "{{ route('mpdr.form.detail', ':formId') }}".replace(':formId', formId);
+                        console.log("Fetching data from URL:", url); // Debugging line
+
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                            success: function (response) {
+                                $('#modalContent').html(response);
+                            },
+                            error: function (xhr) {
+                                $('#modalContent').html('<p class="text-center text-danger">Gagal memuat data. Silakan coba lagi.</p>');
+                                console.error('AJAX Error:', xhr);
+                            }
+                        });
+                    });
+        
 
         // Function untuk konfirmasi delete user
         function confirmDelete(button){
